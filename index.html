@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="Pretext Studio is a small editorial workbench for composing living text and taking the result to a site you control."
+    >
+    <title>Pretext Studio — Make a passage move with purpose</title>
+    <link rel="icon" href="data:,">
+    <script>
+      document.documentElement.classList.toggle('file-mode', location.protocol === 'file:')
+      try {
+        document.documentElement.dataset.welcomeState = localStorage.getItem('pretext-studio:welcome-seen') === '1'
+          ? 'returning'
+          : 'first'
+      } catch {
+        document.documentElement.dataset.welcomeState = 'first'
+      }
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "pretext-flow": "./dist/index.js",
+          "@chenglou/pretext": "https://esm.sh/@chenglou/pretext@0.0.8"
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="studio.css">
+    <script type="module" src="studio.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" id="skip-link" href="#landing-outcomes">Skip to Studio choices</a>
+
+    <p class="transport-warning" role="status">
+      Studio must be served over HTTP(S). Open the published Studio URL instead of this file directly.
+    </p>
+
+    <div class="studio-app" id="studio-app">
+      <main class="app-view landing-view" id="landing-view" data-studio-view="landing">
+        <header class="studio-bar">
+          <p class="wordmark" aria-label="Pretext Studio">
+            <span>Pretext</span>
+            <span class="wordmark__studio">Studio</span>
+          </p>
+          <p class="edition-mark">Living text / author-owned</p>
+        </header>
+
+        <section class="landing-shell" aria-labelledby="landing-title">
+          <div class="landing-lead">
+            <p class="eyebrow">A small studio for a paragraph</p>
+            <h1 id="landing-title">Make a passage move with purpose.</h1>
+            <p class="landing-lede">
+              Write a short piece, then let it make room for an object, respond to a reader, or set
+              the pace for a rehearsal. Keep it readable. Keep it yours.
+            </p>
+            <div class="landing-actions">
+              <button class="primary-action" id="make-design" type="button">Make a design</button>
+              <button class="context-link" id="revisit-proof-scenes" type="button">Revisit the proof scenes</button>
+            </div>
+
+            <div class="outcome-index" id="landing-outcomes" aria-label="What Studio can help you do">
+              <button class="outcome-choice" type="button" data-outcome="flow-hero" aria-pressed="true">
+                <span class="outcome-choice__title">Tell a story</span>
+                <span class="outcome-choice__line">Let type run loose—words pour, land, and gather like water.</span>
+              </button>
+              <button class="outcome-choice" type="button" data-outcome="elements" aria-pressed="false">
+                <span class="outcome-choice__title">Give a passage a setting</span>
+                <span class="outcome-choice__line">Pick an element; the palette, passage, and motion follow.</span>
+              </button>
+              <button class="outcome-choice" type="button" data-outcome="artemis-ii" aria-pressed="false">
+                <span class="outcome-choice__title">Explain a journey</span>
+                <span class="outcome-choice__line">A mission note makes room for Earth, the Moon, and a route home.</span>
+              </button>
+              <button class="outcome-choice" type="button" data-outcome="reading" aria-pressed="false">
+                <span class="outcome-choice__title">Read a draft at human speed</span>
+                <span class="outcome-choice__line">Set the pace for a talk or a difficult email; a marker keeps your place.</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="landing-proof-column">
+            <div class="landing-proof" data-landing-proof="flow-hero" data-proof-kind="flow-hero" data-proof-size="mini"></div>
+            <div class="landing-proof" data-landing-proof="elements" data-proof-kind="elements" data-proof-size="mini" hidden></div>
+            <div class="landing-proof" data-landing-proof="artemis-ii" data-proof-kind="artemis-ii" data-proof-size="mini" hidden></div>
+            <div class="landing-proof" data-landing-proof="reading" data-proof-kind="reading-mini" data-proof-size="mini" hidden></div>
+            <button class="quiet-action landing-proof-open" id="open-full-proof" type="button">See the full scene</button>
+            <p class="proof-boundary">A Studio study. Make your own design to create a portable scene.</p>
+          </div>
+        </section>
+
+        <footer class="landing-credit">Built with pretext-flow, which builds on Pretext.</footer>
+      </main>
+
+      <main class="app-view composer-view" id="composer-view" data-studio-view="composer" hidden>
+        <header class="composer-bar">
+          <button class="back-action" type="button" data-action="home"><span aria-hidden="true">←</span> Pretext Studio</button>
+          <button class="take-action" id="take-scene-button" type="button" hidden>
+            <span aria-hidden="true"></span> Take it with you
+          </button>
+        </header>
+
+        <div class="composer-main">
+          <section class="guide-card" id="guide-step-one" aria-labelledby="guide-one-title" hidden>
+            <p class="eyebrow">1 / 2 — Your words</p>
+            <h1 id="guide-one-title">Bring a paragraph.</h1>
+            <p>Paste a few lines, or start with the example. You can change it later.</p>
+            <label class="sr-only" for="guide-text">Your paragraph</label>
+            <textarea
+              id="guide-text"
+              rows="6"
+              placeholder="Type or paste a passage. A few sentences is plenty."
+            ></textarea>
+            <div class="guide-actions">
+              <button class="primary-action" id="guide-continue" type="button">Choose what it does</button>
+              <button class="quiet-action" id="guide-example" type="button">Use the example</button>
+              <button class="guide-skip" type="button" data-guide-skip>Skip the guide</button>
+            </div>
+          </section>
+
+          <section class="guide-card" id="guide-step-two" aria-labelledby="guide-two-title" hidden>
+            <p class="eyebrow">2 / 2 — What it does</p>
+            <h1 id="guide-two-title">What should this passage do?</h1>
+            <div class="intent-list">
+              <button type="button" data-intent="room">
+                <span>Make room</span>
+                <small>Let it flow around a form, or an image of yours.</small>
+              </button>
+              <button type="button" data-intent="motion">
+                <span>Give it motion</span>
+                <small>Use Breathe, Wave, or Pointer ripple on your text.</small>
+              </button>
+              <button type="button" data-intent="read">
+                <span>Read it through</span>
+                <small>Rehearse it at a reader’s pace before it goes anywhere.</small>
+              </button>
+            </div>
+            <div class="guide-actions">
+              <button class="quiet-action" id="guide-back" type="button">Back</button>
+              <button class="guide-skip" type="button" data-guide-skip>Skip the guide</button>
+            </div>
+          </section>
+
+          <section class="studio-surface" id="studio-surface" aria-labelledby="studio-surface-title" hidden>
+            <h1 class="sr-only" id="studio-surface-title">Pretext Studio composer</h1>
+
+            <div class="composer-tabs" role="tablist" aria-label="Composer surface">
+              <button type="button" role="tab" aria-selected="false" data-composer-tab="text">Text</button>
+              <button
+                class="is-selected"
+                type="button"
+                role="tab"
+                aria-selected="true"
+                data-composer-tab="layout"
+                data-scene-kind="layout"
+              >Flow around a form</button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected="false"
+                data-composer-tab="textBehavior"
+                data-scene-kind="textBehavior"
+              >One behavior</button>
+            </div>
+
+            <section class="text-editor-card" id="text-editor-card" aria-labelledby="article-text-label" hidden>
+              <label id="article-text-label" for="article-text">Your paragraph</label>
+              <textarea id="article-text" rows="8" spellcheck="true"></textarea>
+              <p>When it reads right, give it a form or a behavior.</p>
+              <div class="text-next-actions">
+                <button type="button" data-text-next="layout">Flow around a form</button>
+                <button type="button" data-text-next="textBehavior">One behavior</button>
+              </div>
+            </section>
+
+            <section class="live-composer" id="live-composer">
+              <header class="workspace-header">
+                <div>
+                  <p class="eyebrow" id="workspace-eyebrow">Live layout</p>
+                  <h2 id="workspace-title">The text makes room.</h2>
+                </div>
+                <dl class="layout-metrics" aria-label="Current scene metrics">
+                  <div><dt>Lines</dt><dd id="metric-lines">0</dd></div>
+                  <div><dt>Column</dt><dd id="metric-width">0 px</dd></div>
+                  <div><dt>Reflows</dt><dd id="metric-reflows">0</dd></div>
+                </dl>
+              </header>
+
+              <div class="stage" id="stage">
+                <article class="composition-page" id="composition-page">
+                  <header class="article-header">
+                    <div class="article-folio">
+                      <p>Working scene</p>
+                      <p id="article-preset-label">Pull quote right / 01</p>
+                    </div>
+                    <p class="article-kicker" id="article-kicker">A note in the margin</p>
+                    <h3 id="article-title">Attention changes the shape of a page.</h3>
+                    <p class="article-deck" id="article-deck">
+                      Move the selected object and watch the reading measure negotiate around it.
+                    </p>
+                  </header>
+
+                  <header class="author-editorial" id="author-editorial" aria-hidden="true" hidden>
+                    <p class="author-editorial__kicker" id="author-editorial-kicker" hidden></p>
+                    <h3 id="author-editorial-headline" hidden></h3>
+                    <p class="author-editorial__deck" id="author-editorial-deck" hidden></p>
+                  </header>
+
+                  <div class="flow-region" id="flow-region">
+                    <p class="empty-state" id="empty-state" hidden>
+                      This passage is empty. Return to Text to bring the reading surface back.
+                    </p>
+                    <div class="flow-lines" id="flow-lines" aria-hidden="true"></div>
+                    <div
+                      class="embed-object embed-object--rect"
+                      id="embed-object"
+                      tabindex="0"
+                      aria-label="Selected rectangle embed. Drag it, or use the arrow keys to move it."
+                      aria-describedby="embed-help"
+                      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+                    >
+                      <img class="embed-object__image" id="image-preview" alt="" aria-hidden="true" draggable="false" hidden>
+                      <svg
+                        class="embed-object__hull"
+                        id="image-hull-outline"
+                        viewBox="0 0 1 1"
+                        preserveAspectRatio="none"
+                        aria-hidden="true"
+                        hidden
+                      ><polygon id="image-hull-polygon" points=""></polygon></svg>
+                      <span class="embed-object__placeholder" id="image-placeholder" hidden>Reattach local image</span>
+                      <span class="embed-object__index">01</span>
+                      <strong class="embed-object__label">Pull</strong>
+                      <span class="embed-object__rule" aria-hidden="true"></span>
+                    </div>
+                  </div>
+
+                  <article class="linear-source sr-only" id="linear-source" aria-label="Linear article text"></article>
+                </article>
+              </div>
+
+              <div class="composer-context">
+                <section id="layout-context">
+                  <p id="embed-help">Drag the form to move it. Text reroutes as you go. Arrow keys work too.</p>
+                  <p class="viewport-note" id="viewport-note" aria-live="polite" hidden></p>
+                  <p class="position-readout" id="position-readout" aria-hidden="true">
+                    X <span id="position-x">0</span> / Y <span id="position-y">0</span>
+                  </p>
+                </section>
+                <section class="behavior-interaction" id="behavior-interaction" hidden>
+                  <div>
+                    <p id="motion-state">Motion is preparing.</p>
+                    <p class="viewport-note" id="behavior-viewport-note" aria-live="polite" hidden></p>
+                  </div>
+                  <div class="motion-actions">
+                    <button id="motion-toggle" type="button" aria-describedby="motion-state">Pause motion</button>
+                    <button id="motion-replay" type="button" aria-describedby="motion-state">Replay</button>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <div class="control-rail" id="control-rail">
+              <section class="control-panel" id="layout-controls-panel">
+                <div class="control-line preset-options" role="radiogroup" aria-label="Composition preset">
+                  <span class="control-label">Starting position</span>
+                  <button class="is-selected" type="button" role="radio" aria-checked="true" data-preset="pullQuoteRight">
+                    <span class="preset-option__name">Pull quote right</span>
+                  </button>
+                  <button type="button" role="radio" aria-checked="false" tabindex="-1" data-preset="heroInset">
+                    <span class="preset-option__name">Hero inset</span>
+                  </button>
+                  <button type="button" role="radio" aria-checked="false" tabindex="-1" data-preset="magazineSpread">
+                    <span class="preset-option__name">Magazine spread</span>
+                  </button>
+                </div>
+
+                <div class="control-line source-options" role="radiogroup" aria-label="Embed source">
+                  <span class="control-label">Object</span>
+                  <button class="is-selected" type="button" role="radio" aria-checked="true" data-embed-source="primitive">Primitive</button>
+                  <button type="button" role="radio" aria-checked="false" tabindex="-1" data-embed-source="image">Local image + hull</button>
+                </div>
+
+                <div class="control-details" id="primitive-controls">
+                  <div class="control-line shape-options" role="radiogroup" aria-label="Primitive shape">
+                    <span class="control-label">Shape</span>
+                    <button type="button" role="radio" aria-checked="false" tabindex="-1" data-shape="circle">Circle</button>
+                    <button class="is-selected" type="button" role="radio" aria-checked="true" data-shape="rect">Rectangle</button>
+                    <button type="button" role="radio" aria-checked="false" tabindex="-1" data-shape="ellipse">Ellipse</button>
+                  </div>
+                  <div class="shape-dimensions" id="shape-dimensions" aria-label="Embed dimensions">
+                    <label data-dimension="radius" hidden><span>Radius</span><input id="shape-radius" type="number" min="8" max="410" step="0.1"><small>px</small></label>
+                    <label data-dimension="width"><span>Width</span><input id="shape-width" type="number" min="16" max="820" step="0.1"><small>px</small></label>
+                    <label data-dimension="height"><span>Height</span><input id="shape-height" type="number" min="16" max="1200" step="0.1"><small>px</small></label>
+                    <label data-dimension="radiusX" hidden><span>Radius X</span><input id="shape-radius-x" type="number" min="8" max="410" step="0.1"><small>px</small></label>
+                    <label data-dimension="radiusY" hidden><span>Radius Y</span><input id="shape-radius-y" type="number" min="8" max="410" step="0.1"><small>px</small></label>
+                  </div>
+                </div>
+
+                <div class="image-controls" id="image-controls" hidden>
+                  <label class="file-field" for="image-file"><span>Use a local raster image</span><input id="image-file" type="file" accept="image/*" aria-describedby="image-file-help image-status"></label>
+                  <p id="image-file-help">The file stays in this browser. Portable output keeps only its real alpha-derived hull.</p>
+                  <p class="attachment-state" id="image-attachment-state" hidden>Reattach a local image to restore the preview. The imported hull is still active.</p>
+                  <label class="range-field" for="alpha-threshold"><span>Alpha threshold / 0–255</span><span><input id="alpha-threshold" type="range" min="0" max="255" step="1" value="32"><output id="alpha-threshold-output" for="alpha-threshold">32</output></span></label>
+                  <label class="range-field" for="image-scale"><span>Displayed scale</span><span><input id="image-scale" type="range" min="50" max="150" step="5" value="100"><output id="image-scale-output" for="image-scale">100%</output></span></label>
+                  <label class="text-field" for="image-description"><span>Image description</span><input id="image-description" type="text" maxlength="300" autocomplete="off"></label>
+                  <label class="check-field" for="image-decorative"><input id="image-decorative" type="checkbox"><span>This image is decorative</span></label>
+                  <p class="sampling-note" id="image-sampling-note" hidden></p>
+                  <p class="image-status" id="image-status" role="status" aria-live="polite"></p>
+                </div>
+
+                <div class="control-line layout-actions">
+                  <label class="range-field" for="embed-margin"><span>Flow margin</span><span><input id="embed-margin" type="range" min="0" max="80" step="0.1" value="18"><output id="embed-margin-output" for="embed-margin">18 px</output></span></label>
+                  <button class="context-link" id="reset-position" type="button">Reset position</button>
+                </div>
+              </section>
+
+              <section class="control-panel" id="behavior-controls-panel" hidden>
+                <div class="control-line behavior-options" role="radiogroup" aria-label="Text behavior">
+                  <span class="control-label">Behavior</span>
+                  <button class="is-selected" type="button" role="radio" aria-checked="true" data-behavior="ambientDrift">Breathe</button>
+                  <button type="button" role="radio" aria-checked="false" tabindex="-1" data-behavior="wave">Wave</button>
+                  <button type="button" role="radio" aria-checked="false" tabindex="-1" data-behavior="cursorRipple">Pointer ripple</button>
+                </div>
+                <fieldset class="behavior-values" id="behavior-controls">
+                  <legend>Behavior values</legend>
+                  <p><span>Mode</span><strong id="behavior-mode">Continuous</strong></p>
+                  <div id="behavior-value-controls"></div>
+                </fieldset>
+                <div class="story-actions">
+                  <button class="context-link story-link" id="open-story" type="button">Start with this story: “A story that stays text.”</button>
+                  <button class="context-link" id="edit-story" type="button" hidden>Edit this story</button>
+                </div>
+              </section>
+
+              <div class="measure-control">
+                <label class="range-field" for="column-width"><span>Text measure</span><span><input id="column-width" type="range" min="160" max="820" step="0.1" value="620"><output id="column-width-output" for="column-width">620 px</output></span></label>
+                <button class="quiet-action" id="fit-passage" type="button">Fit to passage</button>
+              </div>
+
+              <details class="common-controls">
+                <summary>Typography and measure</summary>
+                <div class="common-controls__body">
+                  <label for="font-family"><span>Font family</span><select id="font-family"><option value="editorial">Editorial serif</option><option value="humanist">Humanist serif</option><option value="sans">Quiet sans</option></select></label>
+                  <label class="range-field" for="font-size"><span>Font size</span><span><input id="font-size" type="range" min="15" max="24" step="0.1" value="18"><output id="font-size-output" for="font-size">18 px</output></span></label>
+                  <label class="range-field" for="line-height"><span>Line height</span><span><input id="line-height" type="range" min="18" max="60" step="0.1" value="30"><output id="line-height-output" for="line-height">30 px</output></span></label>
+                  <label class="range-field" for="paragraph-gap"><span>Paragraph gap</span><span><input id="paragraph-gap" type="range" min="0" max="80" step="0.1" value="22"><output id="paragraph-gap-output" for="paragraph-gap">22 px</output></span></label>
+                </div>
+              </details>
+              <details class="editorial-context" id="editorial-context">
+                <summary>Add editorial context</summary>
+                <div class="editorial-context__body">
+                  <p>Optional author content. Empty fields are not included in portable output.</p>
+                  <label for="editorial-kicker"><span>Kicker / eyebrow</span><input id="editorial-kicker" type="text" autocomplete="off"></label>
+                  <label for="editorial-headline"><span>Headline</span><input id="editorial-headline" type="text" autocomplete="off"></label>
+                  <label for="editorial-deck"><span>Deck / subtitle</span><input id="editorial-deck" type="text" autocomplete="off"></label>
+                </div>
+              </details>
+            </div>
+            <p class="studio-status" id="studio-status" role="status" aria-live="polite">Current scene ready.</p>
+          </section>
+        </div>
+      </main>
+
+      <main class="app-view reading-view" id="reading-view" data-studio-view="reading" hidden>
+        <header class="composer-bar">
+          <button class="back-action" type="button" data-action="home"><span aria-hidden="true">←</span> Pretext Studio</button>
+        </header>
+        <div class="reading-main">
+          <header class="reading-head">
+            <p class="eyebrow">A reading study</p>
+            <h1>Read it once before you send it.</h1>
+            <p>Set the pace for a talk, a difficult email, or a paragraph you keep editing.</p>
+          </header>
+          <section class="reading-surface" id="reading-surface" aria-label="Paced reading study">
+            <div class="reading-lines" id="reading-lines" aria-hidden="true"></div>
+            <div class="reading-marker" id="reading-marker" aria-hidden="true">
+              <strong id="reading-marker-time">5s</strong>
+              <span id="reading-marker-state">next step</span>
+              <em id="reading-marker-line">line 1</em>
+            </div>
+          </section>
+          <article class="sr-only" id="reading-source" aria-label="Reading study passage"></article>
+          <div class="reading-rail">
+            <button id="reading-toggle" type="button">Pause</button>
+            <button id="reading-step" type="button">Step once</button>
+            <label class="range-field" for="reading-seconds"><span>Seconds per step</span><span><input id="reading-seconds" type="range" min="2" max="12" value="5"><output id="reading-seconds-output" for="reading-seconds">5 sec</output></span></label>
+            <label class="range-field" for="reading-advance"><span>Lines per step</span><span><input id="reading-advance" type="range" min="1" max="4" value="1"><output id="reading-advance-output" for="reading-advance">1 line</output></span></label>
+            <span class="reading-status">Line <strong id="reading-current-line">1</strong> of <strong id="reading-total-lines">0</strong></span>
+            <button class="context-link" id="reading-edit-toggle" type="button">Use your own passage</button>
+          </div>
+          <div class="reading-editor" id="reading-editor" hidden>
+            <label for="reading-text">Reading passage</label>
+            <textarea id="reading-text" rows="8"></textarea>
+            <button class="primary-action" id="reading-edit-done" type="button">Done editing</button>
+          </div>
+          <p class="proof-boundary">Reader-facing study only. It is not a portable scene family and has no export path.</p>
+        </div>
+      </main>
+
+      <div class="welcome" id="welcome" role="dialog" aria-modal="true" aria-label="Welcome to Pretext Studio">
+        <header class="welcome-top">
+          <p class="wordmark" aria-label="Pretext Studio"><span>Pretext</span><span class="wordmark__studio">Studio</span></p>
+          <button class="welcome-skip" id="welcome-skip" type="button">Skip</button>
+        </header>
+        <div class="welcome-body">
+          <section class="welcome-screen" data-welcome-screen="premise">
+            <div class="welcome-copy">
+              <p class="eyebrow">A small studio for a paragraph</p>
+              <h2>Give a paragraph a job.</h2>
+              <p>A story can carry a setting. An explainer can make space for a moving idea. A reading exercise can keep pace without becoming another app. Pretext Studio lets you make one of those scenes, keep the text real, and take its configuration to a site you control.</p>
+              <p class="quiet-note">No account. No upload. Just a scene you can keep.</p>
+              <p class="closing-line">First, three ways a paragraph can go somewhere.</p>
+            </div>
+            <div class="welcome-stage" data-proof-kind="premise"></div>
+          </section>
+          <section class="welcome-screen" data-welcome-screen="flow-hero" hidden>
+            <div class="welcome-copy"><h2>A story can have a world around it.</h2><p>Words leave the tap, ride the stream, and gather in the basin. Living text can be play before it is anything else.</p></div>
+            <div class="welcome-stage" data-proof-kind="flow-hero" data-proof-size="welcome"></div>
+          </section>
+          <section class="welcome-screen" data-welcome-screen="elements" hidden>
+            <div class="welcome-copy"><h2>Give an idea a setting.</h2><p>Each element sets the passage, the palette, and the thing in motion. The fixed anchor shapes the text while the moving element follows its authored path.</p></div>
+            <div class="welcome-stage" data-proof-kind="elements" data-proof-size="welcome"></div>
+          </section>
+          <section class="welcome-screen" data-welcome-screen="artemis-ii" hidden>
+            <div class="welcome-copy"><h2>Explain a journey as it moves.</h2><p>Earth, the Moon, and Orion each get a place in the same note.</p></div>
+            <div class="welcome-stage" data-proof-kind="artemis-ii" data-proof-size="welcome"></div>
+          </section>
+        </div>
+        <footer class="welcome-nav">
+          <span class="welcome-count" id="welcome-count">01 / 04</span>
+          <div class="welcome-nav-actions">
+            <button class="welcome-back" id="welcome-back" type="button">Back</button>
+            <span class="welcome-closing" id="welcome-closing" hidden>Next, start with a passage of your own or begin from one of these examples.</span>
+            <button class="welcome-next" id="welcome-next" type="button">Next</button>
+          </div>
+        </footer>
+      </div>
+
+      <div class="takeaway-scrim" id="takeaway-scrim" hidden>
+        <section class="takeaway-modal" id="takeaway-modal" role="dialog" aria-modal="true" aria-labelledby="takeaway-title">
+          <header>
+            <h2 id="takeaway-title">Take it with you</h2>
+            <button id="takeaway-close" type="button" aria-label="Close Take it with you">×</button>
+          </header>
+          <p class="takeaway-lede">You keep a portable scene and a renderer example. Where they live is your choice, and stays yours.</p>
+          <div class="delivery-routes">
+            <section><span>01</span><div><h3>A live DOM integration</h3><p>Preferred when your site can run your own script: selectable, semantic text from the scene you serve.</p></div></section>
+            <section><span>02</span><div><h3>An iframe page you own</h3><p>For a host that permits an external HTTPS frame. You host the page and choose its height.</p></div></section>
+          </div>
+          <p class="delivery-limit">Studio does not host, publish, store, inspect, or update deployed work. You remain responsible for the runtime, scene, assets, dependency URLs, host policy, and maintenance.</p>
+          <div class="takeaway-actions">
+            <button class="primary-action" id="download-scene" type="button" data-export-hook="keep-scene">Keep the scene</button>
+            <button class="quiet-action" id="copy-dom-example" type="button" data-export-hook="renderer-example">Get the renderer example</button>
+            <button class="quiet-action" id="copy-canvas-example" type="button">Copy Canvas implementation (advanced)</button>
+            <button class="quiet-action" id="copy-scene-json" type="button">Copy scene JSON</button>
+          </div>
+          <details class="output-inspect">
+            <summary>Inspect current output</summary>
+            <div>
+              <section><h3>Scene JSON</h3><pre tabindex="0"><code id="scene-json-output"></code></pre></section>
+              <section><h3>DOM renderer example</h3><pre tabindex="0"><code id="dom-example-output"></code></pre></section>
+              <section><h3>Canvas implementation (advanced)</h3><pre tabindex="0"><code id="canvas-example-output"></code></pre></section>
+            </div>
+          </details>
+          <details class="scene-import">
+            <summary>Bring a scene back</summary>
+            <div>
+              <p>Paste a version 1 layout scene, a version 2 layout or text-behavior scene, or a version 3 scene with author-owned editorial context. Nothing changes until you choose Load scene.</p>
+              <label for="scene-import-json">Scene JSON</label>
+              <textarea id="scene-import-json" rows="8" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="scene-import-help scene-import-status"></textarea>
+              <p id="scene-import-help">JSON is validated as data only. Studio never runs pasted code.</p>
+              <div class="scene-import-actions"><button id="load-scene" type="button">Load scene</button><button id="view-starters" type="button">View composer choices</button></div>
+              <p id="scene-import-status" role="status" aria-live="polite" tabindex="-1"></p>
+            </div>
+          </details>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

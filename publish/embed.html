@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="An author-owned page for publishing one Pretext Studio scene."
+    >
+    <title>Pretext Studio author-owned scene</title>
+    <link rel="icon" href="data:,">
+    <script type="importmap">
+      {
+        "imports": {
+          "pretext-flow": "../dist/index.js",
+          "@chenglou/pretext": "https://esm.sh/@chenglou/pretext@0.0.8"
+        }
+      }
+    </script>
+    <style>
+      @font-face {
+        font-family: "Source Serif 4";
+        src: url("../assets/fonts/SourceSerif4-Regular.ttf.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Source Serif 4";
+        src: url("../assets/fonts/SourceSerif4-It.ttf.woff2") format("woff2");
+        font-style: italic;
+        font-weight: 400;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Source Serif 4";
+        src: url("../assets/fonts/SourceSerif4-Semibold.ttf.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 600;
+        font-display: swap;
+      }
+
+      :root {
+        color-scheme: light;
+        background: #fffdfa;
+        color: #17120f;
+        font-family: "Source Serif 4", Georgia, serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 0;
+        margin: 0;
+        padding: clamp(1rem, 4vw, 3rem);
+        overflow-x: hidden;
+      }
+
+      .scene-shell {
+        width: min(100%, 42.5rem);
+        margin-inline: auto;
+      }
+
+      .scene-status {
+        margin: 1rem 0 0;
+        font: 0.85rem/1.5 "Source Serif 4", Georgia, serif;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="scene-shell">
+      <div id="published-scene" aria-busy="true"></div>
+      <p class="scene-status" id="scene-status" role="status">Loading the published scene.</p>
+      <noscript>
+        <p class="scene-status">This living scene needs JavaScript. Add the article as ordinary host-page text if your publication requires a no-script reading path.</p>
+      </noscript>
+    </main>
+
+    <script type="module">
+      import { mountStudioScene } from './renderer.js'
+
+      const target = document.querySelector('#published-scene')
+      const status = document.querySelector('#scene-status')
+
+      try {
+        const response = await fetch('./pretext-studio.scene.json')
+        if (!response.ok) throw new Error(`Scene request returned ${response.status}.`)
+        const scene = await response.json()
+        const options = { articleLabel: 'Published article' }
+        const imageUrl = target.dataset.imageUrl?.trim()
+        if (imageUrl) options.imageUrl = imageUrl
+        mountStudioScene(target, scene, options)
+        target.removeAttribute('aria-busy')
+        status.remove()
+      } catch (error) {
+        target.removeAttribute('aria-busy')
+        status.textContent = `The scene could not be loaded. Confirm that pretext-studio.scene.json is beside embed.html and served over HTTP or HTTPS. ${error.message}`
+      }
+    </script>
+  </body>
+</html>
