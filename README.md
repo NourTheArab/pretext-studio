@@ -32,7 +32,7 @@ Exports include editable scene inputs, normalized image-hull geometry, display d
 
 ## Project lineage
 
-Studio is a new Build Week project built on `pretext-flow`, Nour Alshehri's separately maintained library, which itself builds on `@chenglou/pretext`. Studio does not replace either project. It makes the capability explorable by authors, designers, educators, and creative developers before they write a custom integration.
+Studio is a new Build Week project built on `pretext-flow`, Nour Al-Sheikh's separately maintained library, which itself builds on `@chenglou/pretext`. Studio does not replace either project. It makes the capability explorable by authors, designers, educators, and creative developers before they write a custom integration.
 
 ## How it was made
 
