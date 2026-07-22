@@ -2,7 +2,7 @@
 
 ## pretext-flow
 
-This release includes the browser ESM build of `pretext-flow`, a separately maintained library by Nour Alshehri. It is distributed here under the MIT License in [LICENSE](LICENSE).
+This release includes the browser ESM build of `pretext-flow`, a separately maintained library by Nour Al-Sheikh. It is distributed here under the MIT License in [LICENSE](LICENSE).
 
 Repository: https://github.com/NourTheArab/pretext-flow
 
